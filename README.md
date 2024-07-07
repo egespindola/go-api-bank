@@ -8,6 +8,7 @@ An API of a bank that is able to create and manage bank accounts, record all bal
 
 - [Golang](https://go.dev/)
 - [Gin Framework](https://gin-gonic.com/)
+- [Testify](https://github.com/stretchr/testify)
 
 ## 🛠️ Other Tools
 
