@@ -1,0 +1,37 @@
+Table accounts as A{
+  id bigserial [pk]
+  owner varchar [not null]
+  balance bigint [not null]
+  currency varchar [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    owner
+  }
+}
+
+Table entries {
+  id bigserial [pk]
+  account_id bigint [ref: > A.id, not null]
+  amount bigint [not null, note:'can be positive or negative']
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    account_id
+  }
+}
+
+Table transfers {
+  id bigserial [pk]
+  from_acount_id bigint [ref: > A.id, not null]
+  to_acount_id bigint [ref: > A.id, not null]
+  amount bigint [not null, note:'must be positive']
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    from_acount_id
+    to_acount_id
+    (from_acount_id, to_acount_id)
+  }
+
+}

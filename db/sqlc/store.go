@@ -105,26 +105,52 @@ func (s *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferT
 		// 	return err
 		// }
 
-		// fmt.Println(txName, "update fromAccount")
-		result.FromAccount, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
-			ID:     arg.FromAccountID,
-			Amount: -arg.Ammount,
-		})
-		if err != nil {
-			return err
-		}
+		// the following 'if' is to avoid deadlock when running multiples transactions in one order and the reverse (which run on exclusive lock)
+		if arg.FromAccountID < arg.ToAccountID {
 
-		// fmt.Println(txName, "update toAccount")
-		result.ToAccount, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
-			ID:     arg.ToAccountID,
-			Amount: arg.Ammount,
-		})
-		if err != nil {
-			return err
+			result.FromAccount, result.ToAccount, err = addMoney(ctx, q, arg.FromAccountID, -arg.Ammount, arg.ToAccountID, arg.Ammount)
+
+			if err != nil {
+				return err
+			}
+
+		} else {
+			result.ToAccount, result.FromAccount, err = addMoney(ctx, q, arg.ToAccountID, arg.Ammount, arg.FromAccountID, -arg.Ammount)
+
+			if err != nil {
+				return err
+			}
+
 		}
 
 		return nil
 	})
 
 	return result, err
+}
+
+func addMoney(
+	ctx context.Context,
+	q *Queries,
+	accountID1 int64,
+	amount1 int64,
+	accountID2 int64,
+	amount2 int64,
+) (account1 Account, account2 Account, err error) {
+	account1, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
+		ID:     accountID1,
+		Amount: amount1,
+	})
+	if err != nil {
+		// return account1, account2, err
+		return
+	}
+
+	account2, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
+		ID:     accountID2,
+		Amount: amount2,
+	})
+
+	return
+
 }
