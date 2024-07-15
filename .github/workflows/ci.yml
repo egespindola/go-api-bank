@@ -43,6 +43,7 @@ jobs:
       run: | 
            make migrateInstall
            ls -lha
+           pwd
            sudo mv migrate /user/bin/migrate
            which migrate
 
