@@ -42,7 +42,7 @@ jobs:
     - name: Install Go Migrate
       run: | 
            make migrateInstall
-           sudo mv migrate /user/bin/
+           sudo mv migrate /user/bin/migrate
            which migrate
 
     - name: Run Migrations
